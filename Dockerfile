@@ -12,8 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p /app/config /app/logs /app/static /app/templates
+# Create necessary directories at standard Docker paths
+RUN mkdir -p /config /logs
 
 # Expose port
 EXPOSE 5000

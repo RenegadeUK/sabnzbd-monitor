@@ -6,7 +6,7 @@ from monitor import get_monitor
 app = Flask(__name__)
 
 # Path to log file
-LOG_FILE = Path(__file__).parent / "logs" / "monitor.log"
+LOG_FILE = Path("/logs/monitor.log")
 
 # Start monitor on app startup
 monitor = get_monitor()

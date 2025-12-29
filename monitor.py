@@ -7,7 +7,7 @@ from datetime import datetime
 import config_manager
 
 # Set up logging
-LOG_DIR = Path(__file__).parent / "logs"
+LOG_DIR = Path("/logs")
 LOG_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOG_DIR / "monitor.log"
 

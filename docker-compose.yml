@@ -8,8 +8,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./config:/app/config
-      - ./logs:/app/logs
+      - ./config:/config
+      - ./logs:/logs
     environment:
       - TZ=UTC
     networks:
