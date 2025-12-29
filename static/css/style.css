@@ -57,6 +57,68 @@ nav h1 {
     padding: 0 2rem;
 }
 
+.stats-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.tile {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s;
+}
+
+.tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.tile-icon {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.tile-content {
+    flex: 1;
+}
+
+.tile-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.tile-label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tile-queue .tile-number {
+    color: #667eea;
+}
+
+.tile-history .tile-number {
+    color: #28a745;
+}
+
+.tile-warnings .tile-number {
+    color: #ff9800;
+}
+
+.tile-data .tile-number {
+    color: #764ba2;
+}
+
 section {
     background: white;
     border-radius: 16px;

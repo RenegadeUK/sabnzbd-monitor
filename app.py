@@ -143,6 +143,16 @@ def monitor_status():
     """Get monitor status."""
     return jsonify({'running': monitor.running})
 
+@app.route('/api/stats')
+def get_stats():
+    """Get aggregated stats from all servers."""
+    try:
+        config = config_manager.load_config()
+        stats = monitor.get_aggregated_stats(config.get('servers', []))
+        return jsonify({'success': True, 'stats': stats})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 if __name__ == '__main__':
     # Ensure log directory exists
     LOG_FILE.parent.mkdir(exist_ok=True)

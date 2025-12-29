@@ -17,6 +17,37 @@
     </nav>
 
     <div class="container">
+        <section class="stats-tiles">
+            <div class="tile tile-queue">
+                <div class="tile-icon">📥</div>
+                <div class="tile-content">
+                    <div class="tile-number" id="queueCount">-</div>
+                    <div class="tile-label">Queue Items</div>
+                </div>
+            </div>
+            <div class="tile tile-history">
+                <div class="tile-icon">✅</div>
+                <div class="tile-content">
+                    <div class="tile-number" id="historyCount">-</div>
+                    <div class="tile-label">History Items</div>
+                </div>
+            </div>
+            <div class="tile tile-warnings">
+                <div class="tile-icon">⚠️</div>
+                <div class="tile-content">
+                    <div class="tile-number" id="warningsCount">-</div>
+                    <div class="tile-label">Warnings</div>
+                </div>
+            </div>
+            <div class="tile tile-data">
+                <div class="tile-icon">💾</div>
+                <div class="tile-content">
+                    <div class="tile-number" id="queueData">-</div>
+                    <div class="tile-label">Queue Size</div>
+                </div>
+            </div>
+        </section>
+
         <section class="status-section">
             <h2>Server Status</h2>
             <div class="servers-grid">
@@ -123,6 +154,26 @@
 
         // Auto-refresh logs every 5 seconds
         setInterval(refreshLogs, 5000);
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('queueCount').textContent = data.stats.queue_count || '0';
+                    document.getElementById('historyCount').textContent = data.stats.history_count || '0';
+                    document.getElementById('warningsCount').textContent = data.stats.warnings_count || '0';
+                    document.getElementById('queueData').textContent = data.stats.queue_data || '0 GB';
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        // Fetch stats on page load and every 10 seconds
+        fetchStats();
+        setInterval(fetchStats, 10000);
     </script>
 </body>
 </html>

@@ -95,8 +95,59 @@ class SABnzbdMonitor:
             return queue_data_left_gb
         except Exception as e:
             logger.error(f"Error fetching queue data for {server['name']}: {e}")
-            return -1
+            return -1    
+    def get_queue_count(self, server):
+        """Get the number of items in download queue."""
+        try:
+            url = f"{server['url']}?mode=queue&apikey={server['api_key']}"
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            return len(data['queue']['slots'])
+        except Exception as e:
+            logger.error(f"Error fetching queue count for {server['name']}: {e}")
+            return 0
     
+    def get_warnings_count(self, server):
+        """Get the number of warnings from history."""
+        try:
+            url = f"{server['url']}?mode=history&start=0&limit=100&apikey={server['api_key']}"
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            warnings = 0
+            for item in data['history']['slots']:
+                if item.get('status') == 'Failed' or item.get('fail_message'):
+                    warnings += 1
+            return warnings
+        except Exception as e:
+            logger.error(f"Error fetching warnings for {server['name']}: {e}")
+            return 0
+    
+    def get_aggregated_stats(self, servers):
+        """Get aggregated stats from all servers."""
+        total_queue_count = 0
+        total_history_count = 0
+        total_warnings = 0
+        total_queue_data_gb = 0.0
+        
+        for server in servers:
+            total_queue_count += self.get_queue_count(server)
+            history_length = self.get_history_length(server)
+            if history_length != -1:
+                total_history_count += history_length
+            total_warnings += self.get_warnings_count(server)
+            
+            queue_data = self.get_queue_data_left(server)
+            if queue_data != -1:
+                total_queue_data_gb += queue_data
+        
+        return {
+            'queue_count': total_queue_count,
+            'history_count': total_history_count,
+            'warnings_count': total_warnings,
+            'queue_data': f'{total_queue_data_gb:.1f} GB'
+        }    
     def pause_sabnzbd(self, server):
         """Pause SABnzbd for a specific server."""
         if not server.get("paused", False):
