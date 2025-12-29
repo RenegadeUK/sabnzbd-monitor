@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  sabnzbd-monitor:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/sabnzbd-monitor:latest
+    container_name: sabnzbd-monitor
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - TZ=UTC
+    networks:
+      - sabnzbd-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/api/monitor/status', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  sabnzbd-network:
+    driver: bridge

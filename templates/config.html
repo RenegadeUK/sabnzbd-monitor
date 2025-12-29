@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SABnzbd Monitor - Configuration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav>
+        <h1>🔍 SABnzbd Monitor</h1>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/config" class="active">Configuration</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="config-section">
+            <h2>SABnzbd Servers</h2>
+            <div class="servers-list" id="serversList">
+                {% for i, server in enumerate(config.servers) %}
+                <div class="server-form" data-index="{{ i }}">
+                    <div class="form-header">
+                        <h3>Server {{ i + 1 }}</h3>
+                        <button onclick="deleteServer({{ i }})" class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Server Name</label>
+                        <input type="text" class="form-control" value="{{ server.name }}" data-field="name">
+                    </div>
+                    <div class="form-group">
+                        <label>SABnzbd URL</label>
+                        <input type="text" class="form-control" value="{{ server.web_ui }}" data-field="web_ui" placeholder="http://192.168.1.100:8080">
+                        <small>Base URL of your SABnzbd instance</small>
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="text" class="form-control" value="{{ server.api_key }}" data-field="api_key">
+                        <small>Found in SABnzbd Config → General → API Key</small>
+                    </div>
+                    <button onclick="updateServer({{ i }})" class="btn btn-primary">Update Server</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="add-server-section">
+                <h3>Add New Server</h3>
+                <div class="server-form" id="newServerForm">
+                    <div class="form-group">
+                        <label>Server Name</label>
+                        <input type="text" class="form-control" id="newName" placeholder="e.g., SABnzbd Server 1">
+                    </div>
+                    <div class="form-group">
+                        <label>SABnzbd URL</label>
+                        <input type="text" class="form-control" id="newWebUi" placeholder="http://192.168.1.100:8080">
+                        <small>Base URL of your SABnzbd instance (without /sabnzbd/api)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="text" class="form-control" id="newApiKey" placeholder="Your API key from SABnzbd settings">
+                    </div>
+                    <button onclick="addServer()" class="btn btn-success">Add Server</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="config-section">
+            <h2>Discord Webhook</h2>
+            <div class="form-group">
+                <label>Webhook URL</label>
+                <input type="text" class="form-control" id="discordWebhook" value="{{ config.discord_webhook_url }}">
+            </div>
+            <button onclick="updateDiscord()" class="btn btn-primary">Update Webhook</button>
+        </section>
+
+        <section class="config-section">
+            <h2>Monitoring Settings</h2>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label>Check Interval (seconds)</label>
+                    <input type="number" class="form-control" id="checkInterval" value="{{ config.check_interval }}" min="10">
+                    <small>How often to check server status</small>
+                </div>
+                <div class="form-group">
+                    <label>Pause Threshold (items)</label>
+                    <input type="number" class="form-control" id="pauseThreshold" value="{{ config.pause_threshold }}" min="1">
+                    <small>Pause server when history reaches this many items</small>
+                </div>
+                <div class="form-group">
+                    <label>Resume Threshold (items)</label>
+                    <input type="number" class="form-control" id="resumeThreshold" value="{{ config.resume_threshold }}" min="1">
+                    <small>Resume server when history drops to this many items</small>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="hourlyUpdate" {% if config.hourly_update_enabled %}checked{% endif %}>
+                        Enable Hourly Queue Updates
+                    </label>
+                </div>
+                <button onclick="updateSettings()" class="btn btn-primary">Update Settings</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        async function addServer() {
+            const name = document.getElementById('newName').value;
+            const web_ui = document.getElementById('newWebUi').value.replace(/\/$/, ''); // Remove trailing slash
+            const api_key = document.getElementById('newApiKey').value;
+
+            if (!name || !web_ui || !api_key) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Build API URL from base URL
+            const url = web_ui + '/sabnzbd/api';
+
+            try {
+                const response = await fetch('/api/servers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, url, api_key, web_ui })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Server added successfully');
+                    location.reload();
+                } else {
+                    alert('Error adding server');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function updateServer(index) {
+            const form = document.querySelector(`[data-index="${index}"]`);
+            const name = form.querySelector('[data-field="name"]').value;
+            const web_ui = form.querySelector('[data-field="web_ui"]').value.replace(/\/$/, ''); // Remove trailing slash
+            const api_key = form.querySelector('[data-field="api_key"]').value;
+
+            // Build API URL from base URL
+            const url = web_ui + '/sabnzbd/api';
+
+            try {
+                const response = await fetch(`/api/servers/${index}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, url, api_key, web_ui })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Server updated successfully');
+                } else {
+                    alert('Error updating server');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteServer(index) {
+            if (!confirm('Are you sure you want to delete this server?')) return;
+
+            try {
+                const response = await fetch(`/api/servers/${index}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Server deleted successfully');
+                    location.reload();
+                } else {
+                    alert('Error deleting server');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function updateDiscord() {
+            const webhook_url = document.getElementById('discordWebhook').value;
+
+            try {
+                const response = await fetch('/api/discord', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook_url })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Discord webhook updated successfully');
+                } else {
+                    alert('Error updating webhook');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function updateSettings() {
+            const check_interval = document.getElementById('checkInterval').value;
+            const pause_threshold = document.getElementById('pauseThreshold').value;
+            const resume_threshold = document.getElementById('resumeThreshold').value;
+            const hourly_update_enabled = document.getElementById('hourlyUpdate').checked;
+
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        check_interval,
+                        pause_threshold,
+                        resume_threshold,
+                        hourly_update_enabled
+                    })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Settings updated successfully');
+                } else {
+                    alert('Error updating settings');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
