@@ -116,7 +116,7 @@
             }
 
             // Build API URL from base URL
-            const url = web_ui + '/sabnzbd/api';
+            const url = web_ui + '/api';
 
             try {
                 const response = await fetch('/api/servers', {
@@ -144,7 +144,7 @@
             const api_key = form.querySelector('[data-field="api_key"]').value;
 
             // Build API URL from base URL
-            const url = web_ui + '/sabnzbd/api';
+            const url = web_ui + '/api';
 
             try {
                 const response = await fetch(`/api/servers/${index}`, {
