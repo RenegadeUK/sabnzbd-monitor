@@ -18,34 +18,34 @@
 
     <div class="container">
         <section class="stats-tiles">
-            <div class="tile tile-queue">
+            <a class="tile tile-queue" data-hash="#queue-tab" title="View Queue">
                 <div class="tile-icon">📥</div>
                 <div class="tile-content">
                     <div class="tile-number" id="queueCount">-</div>
                     <div class="tile-label">Queue Items</div>
                 </div>
-            </div>
-            <div class="tile tile-history">
+            </a>
+            <a class="tile tile-history" data-hash="#history-tab" title="View History">
                 <div class="tile-icon">✅</div>
                 <div class="tile-content">
                     <div class="tile-number" id="historyCount">-</div>
                     <div class="tile-label">History Items</div>
                 </div>
-            </div>
-            <div class="tile tile-warnings">
+            </a>
+            <a class="tile tile-warnings" data-hash="#queue-messages" title="View Warnings">
                 <div class="tile-icon">⚠️</div>
                 <div class="tile-content">
                     <div class="tile-number" id="warningsCount">-</div>
                     <div class="tile-label">Warnings</div>
                 </div>
-            </div>
-            <div class="tile tile-data">
+            </a>
+            <a class="tile tile-data" data-hash="#queue-tab" title="View Queue">
                 <div class="tile-icon">💾</div>
                 <div class="tile-content">
                     <div class="tile-number" id="queueData">-</div>
                     <div class="tile-label">Queue Size</div>
                 </div>
-            </div>
+            </a>
         </section>
 
         <section class="status-section">
@@ -174,6 +174,26 @@
         // Fetch stats on page load and every 10 seconds
         fetchStats();
         setInterval(fetchStats, 10000);
+
+        // Setup tile click handlers
+        function setupTileLinks() {
+            const tiles = document.querySelectorAll('.stats-tiles .tile');
+            tiles.forEach(tile => {
+                tile.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const hash = this.getAttribute('data-hash');
+                    const firstServer = {{ config.servers[0].web_ui|tojson if config.servers else '""'|tojson }};
+                    if (firstServer) {
+                        window.open(firstServer + hash, '_blank');
+                    } else {
+                        alert('No servers configured. Add a server in Configuration.');
+                    }
+                });
+            });
+        }
+
+        // Initialize tile links
+        setupTileLinks();
     </script>
 </body>
 </html>
