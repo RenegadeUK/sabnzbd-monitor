@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle with shadow -->
+  <circle cx="128" cy="128" r="118" fill="url(#grad)" filter="url(#shadow)"/>
+  
+  <!-- Outer ring -->
+  <circle cx="128" cy="128" r="118" fill="none" stroke="#fff" stroke-width="4" opacity="0.3"/>
+  
+  <!-- Download arrow -->
+  <g filter="url(#shadow)">
+    <!-- Arrow shaft -->
+    <rect x="118" y="64" width="20" height="80" rx="10" fill="#fff"/>
+    
+    <!-- Arrow head -->
+    <path d="M 88 130 L 128 170 L 168 130 Z" fill="#fff"/>
+  </g>
+  
+  <!-- Base platform -->
+  <rect x="76" y="180" width="104" height="16" rx="8" fill="#fff" filter="url(#shadow)"/>
+  
+  <!-- Monitoring indicators (animated pulse effect) -->
+  <circle cx="76" cy="76" r="8" fill="#fff" opacity="0.9">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="180" cy="76" r="8" fill="#fff" opacity="0.9">
+    <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="76" cy="180" r="8" fill="#fff" opacity="0.9">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+  <circle cx="180" cy="180" r="8" fill="#fff" opacity="0.9">
+    <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+</svg>
